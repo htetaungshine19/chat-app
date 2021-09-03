@@ -10,8 +10,8 @@ frontend/node_modules/.pnp
 frontend/node_modules/coverage
 
 # production
-frontend/build
-
+frontend/build/*
+frontend/node_modules/build
 # misc
 .DS_Store
 .env.local
