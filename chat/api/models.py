@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import pre_save,pre_delete
 from django.dispatch import receiver
-from django.core.files import File 
 import os
 from django.conf import settings
 
@@ -15,7 +14,7 @@ def getname(self,filename,*args,**kwargs):
 class CustomUser(AbstractUser):
     email = models.EmailField(_('email address'),unique=True)
     profileImage = models.ImageField(upload_to = getname,default = "profile_images/default.png",blank=True)
-    status = models.CharField(max_length=100,default="inactive",blank=True)
+    status = models.DateTimeField(auto_now = True)
     friendList = models.ManyToManyField("self",symmetrical=True,blank=True)
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
