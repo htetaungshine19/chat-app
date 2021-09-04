@@ -17,11 +17,13 @@ a=get_asgi_application()
 from channels.auth import AuthMiddlewareStack
 from channels.routing import URLRouter,ProtocolTypeRouter
 from api.urls import urlpatterns
-application = ProtocolTypeRouter(
+application =AuthMiddlewareStack(
+     ProtocolTypeRouter(
     {
         "http":a,
         "websocket":URLRouter(
             urlpatterns
         )
     }
+)
 )

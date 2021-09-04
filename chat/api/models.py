@@ -1,14 +1,14 @@
+from datetime import datetime, timedelta
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-from django.db.models.signals import pre_save,pre_delete
-from django.dispatch import receiver
-import os
-from django.conf import settings
-
+from datetime import datetime
+from django.utils import timezone
 def getname(self,filename,*args,**kwargs):
     return 'profile_images/{}'.format(filename)
 
+def uploadMsg(self,filename,*args,**kwargs):
+    return 'messages/{}'.format(filename)
 
 
 class CustomUser(AbstractUser):
@@ -22,12 +22,15 @@ class CustomUser(AbstractUser):
 
     @property
     def isActive(self):
-        return self.status
+        a = timezone.now()
+        b = self.status
+        
+        print(type(a-b))
+        return a-b
 
     def __str__(self) -> str:
         return self.username
 
-    
 class FriendRequest(models.Model):
     requestedUser = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="this")
     toUser = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="that")
@@ -35,12 +38,18 @@ class FriendRequest(models.Model):
     def __str__(self) -> str:
         return self.requestedUser.username + self.toUser.username
 
-@receiver([pre_save,pre_delete],sender = CustomUser)
-def clean_prev_image_data(sender,instance,**kwargs):
-    if(instance.id):
-        a = CustomUser.objects.get(id=instance.id).profileImage
-        b = str(settings.BASE_DIR).replace("\\","/")
-        if(a):
-            if(a != instance.profileImage):
-                os.remove(b+a.url)
-                
+class Groups(models.Model):
+    name = models.CharField(max_length=100)
+    users = models.ManyToManyField(CustomUser,related_name="msg_group")
+    is_group = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return str(self.pk)
+
+class Message(models.Model):
+    text = models.TextField(blank=True)
+    file = models.FileField(upload_to = uploadMsg,blank=True)
+    group = models.ForeignKey(Groups,on_delete=models.CASCADE,related_name="messages")
+
+    def __str__(self) -> str:
+        return self.text
