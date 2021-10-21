@@ -11,6 +11,14 @@
     <button id="btn">send</button>
     <script>
       wc = new WebSocket("ws://127.0.0.1:8000/");
+      
+      if (wc.readyState < 1) {
+        console.log("connecting");
+      }
+
+      if (wc.readyState > 1) {
+        console.log("closing");
+      }
       wc.onmessage = function (e) {
         console.log(e);
       };
